@@ -128,14 +128,6 @@ class CameraMotion {
 public:
     enum class Result { Idle, Running, Command, Finished };
     explicit CameraMotion(CameraConfig config = {}) : config_(config) { config_.Validate(); }
-    // Startup WALK_MODE ends at FORWARD. Keep those head targets overriding
-    // subsequent body JSONs until an explicit camera request changes the pose.
-    void HoldForward() {
-        if (active_) throw std::logic_error("cannot latch FORWARD while camera is moving");
-        start_ = target_ = current_ = config_.forward;
-        override_enabled_ = true;
-        settling_ = false;
-    }
     void Start(uint8_t request, const RawPositions& base, Clock::time_point now) {
         const auto target = config_.Target(request);
         const CameraPose start{base.at(config_.yaw_id), base.at(config_.pitch_id)};
