@@ -49,10 +49,7 @@ void WriteMotion(const fs::path& path, bool startup=false) {
         bool first=true;
         for(int id:Dxl::MotorIds()) {
             if(!first)stream<<',';first=false;
-            const int32_t tick = startup && id==21 ? 2077 :
-                                 startup && id==22 ? 1537 :
-                                 id==0 && !startup ? 2148+frame*100 : 2048;
-            stream<<'"'<<id<<"\":"<<tick;
+            stream<<'"'<<id<<"\":"<<(id==0&&!startup?2148+frame*100:2048);
         }
         stream<<"}}";
     }
@@ -105,8 +102,8 @@ int main() {
         };
         pump([&]{return !node->startup_pose_in_progress_;});flush();
         Check(node->action_cmd_sub_&&node->camera_cmd_sub_,"subscriptions missing after startup");
-        Check(actions.empty()&&node->camera_motion_->OverrideEnabled(),"startup must latch FORWARD without publishing camera status");
-        for(const auto& p:Dxl::packets)Check(p.at(21)==2077&&p.at(22)==1537,"startup head is not FORWARD");
+        Check(actions.empty()&&!node->camera_motion_->OverrideEnabled(),"startup published status or enabled camera override");
+        for(const auto& p:Dxl::packets)Check(p.at(21)==2048&&p.at(22)==2048,"camera moved during startup");
         std::cout<<"PASS real MainNode startup cache/subscription/camera preservation\n";
 
         action(1001,11);action(1001,11);action(1002,12);action(0,11);
