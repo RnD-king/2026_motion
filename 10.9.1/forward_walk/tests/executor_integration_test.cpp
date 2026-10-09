@@ -52,7 +52,7 @@ void WriteMotion(const fs::path& path, bool startup=false) {
             const int32_t tick = startup && id==21 ? 2077 :
                                  startup && id==22 ? 1537 :
                                  id==0 && !startup ? 2148+frame*100 : 2048;
-            stream<<'"'<<id<<"\\":"<<tick;
+            stream<<'"'<<id<<"\":"<<tick;
         }
         stream<<"}}";
     }
