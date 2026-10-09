@@ -470,14 +470,7 @@ private:
 
     void AbortPlayback(const std::string& reason)
     {
-        RCLCPP_ERROR(
-            get_logger(),
-            "Playback stopped without DONE: action_id=%llu action=%u queued_id=%llu camera_id=%llu reason=%s",
-            static_cast<unsigned long long>(action_transactions_.active_id),
-            static_cast<unsigned int>(current_action_),
-            static_cast<unsigned long long>(action_transactions_.queued_id),
-            static_cast<unsigned long long>(camera_transactions_.active_id),
-            reason.c_str());
+        RCLCPP_ERROR(get_logger(), "Playback stopped without DONE: %s", reason.c_str());
         p2p_player_->Stop();
         camera_motion_->Abort(last_sent_positions_);
         action_transactions_.Abort();
@@ -541,9 +534,6 @@ private:
             if (startup_pose_in_progress_) {
                 startup_pose_in_progress_ = false;
                 current_action_ = 0;
-                // The startup JSON ends at camera FORWARD. Latch the same
-                // head pose so ordinary body JSONs cannot overwrite it.
-                camera_motion_->HoldForward();
                 CreateCommandSubscriptions();
             } else {
                 const auto completed_id = action_transactions_.active_id;
